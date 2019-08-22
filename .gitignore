@@ -13,6 +13,7 @@ ballgame.a
 ballgame.lib
 ballgame-test-*
 *.exe
+*.dll
 *.o
 *.obj
 *.lst
