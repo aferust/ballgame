@@ -94,6 +94,18 @@ void drawPaddle(SDL_Renderer *ren, Paddle paddle){
     SDL_RenderFillRect( ren, &r );
 }
 
+void createTiles(int pattern){
+    auto t_p = mallocEmplace!TilePattern(tile_w, tile_h);
+    DynamicArray!(Point!float) tile_positions = t_p.get_tile_positions(pattern);
+    destroyFree(t_p);
+    if(tiles.length == 0){
+        foreach(tp; tile_positions){
+            auto a_tile = mallocEmplace!Tile(tp);
+            tiles ~= a_tile;
+        }
+    }
+}
+
 int main(){
     DerelictSDL2.load();
     DerelictSDL2Image.load();
@@ -150,15 +162,7 @@ int main(){
         return 1;
     }
     
-	writeln("Edit source/app.d to start your project.");
-    auto t_p = mallocEmplace!TilePattern(tile_w, tile_h);
-    DynamicArray!(Point!float) tile_positions = t_p.get_tile_positions_1();
-    destroyFree(t_p);
-    
-    foreach(tp; tile_positions){
-        auto a_tile = mallocEmplace!Tile(tp);
-        tiles ~= a_tile;
-    }
+    createTiles(0);
     
     auto paddle = mallocEmplace!Paddle();
     
@@ -208,10 +212,13 @@ int main(){
                 if (event.key.keysym.sym == SDLK_SPACE) {
                     balls ~= mallocEmplace!Ball(Point!int(paddle.position.x + padlen/2, paddle.position.y - 20));
                 }
+                if (event.key.keysym.sym == SDLK_1) {
+                    createTiles(0);
+                }
+                if (event.key.keysym.sym == SDLK_2) {
+                    createTiles(1);
+                }
             }
-            
-            
-            
         }
     }
     
