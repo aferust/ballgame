@@ -67,7 +67,8 @@ auto mallocEmplace(T, Args...)(Args args)
 }
 
 void onOutOfMemoryErrorNoGC(){
-    printf("Memory error \n");
+    //printf("Memory error \n");
+    throw mallocEmplace!Exception("Memory error \n");
 }
 
 
@@ -99,7 +100,7 @@ void destroyFree(T)(T* p) if (!is(T == class) && !is(T == interface))
     import core.stdc.stdlib;
     if (p !is null)
     {
-        destroyNoGC(p);
+        destroyNoGC(*p);
         free(cast(void*)p);
     }
 }
@@ -122,28 +123,6 @@ catch(Exception e)
 
 +/
 
-class Hayvan {
-    uint age;
-    uint length;
-    
-    this(){
-        age = 0;
-        length = 1;
-        printf("Hello, I'm allocated!\n");
-    }
-    
-    ~this(){
-        printf("byeeee!\n");
-    }
-    
-    void makeSound(){
-        printf("Hrrrrrrrrrrrrr\n");
-    }
-}
-
-void deneme(Hayvan ob){
-    ob.age = 4;
-}
 /+
 void main()
 {

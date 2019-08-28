@@ -1,27 +1,24 @@
 module tilegen;
 
 import std.container;
-import dlib.container;
+//import dlib.container;
 
 import types;
 import globals;
 
-class TilePattern {
+struct TilePattern {
     
-private:
     float tw;
     float th;
     
-public:
-    
-    this(float tile_w, float tile_h){
+    void _init_(float tile_w, float tile_h) nothrow @nogc{
         tw = tile_w;
         th = tile_h;
     }
     
     auto get_tile_positions(int seed){
         //int y_offset = 3*th;
-        DynamicArray!(Point!float) positions;
+        Array!(Point!float) positions;
         if(seed == 0){
             foreach (row; 0..15) {
                 foreach (col;6..10) {

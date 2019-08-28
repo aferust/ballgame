@@ -1,6 +1,7 @@
 .dub
 /tmp
 /pong_multiballs
+breakout-cpp-sdl2.zip
 dub.selections.json
 docs.json
 __dummy.html

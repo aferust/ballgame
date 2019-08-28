@@ -8,6 +8,7 @@
 	"name": "ballgame",
     "dependencies": {
         "derelict-sdl2": ">=3.0.0-beta.7 <3.1.0-0",
-        "dlib": "~master"
+        "dlib": "~master",
+        "tanya": "~master"
     }
 }
