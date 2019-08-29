@@ -6,11 +6,10 @@ import std.stdio;
 import std.conv;
 import std.string;
 import std.stdint;
-
-import derelict.sdl2.sdl;
-import derelict.sdl2.image;
-//import dlib.container;
 import std.container;
+
+import bindbc.sdl;
+import bindbc.sdl.image;
 
 import types;
 import ball;
@@ -19,15 +18,10 @@ import tile;
 import tilegen;
 import memory;
 import globals;
+import vvector;
 
-/*import derelict.sdl2.mixer;
-import derelict.sdl2.ttf;
-import derelict.sdl2.net;*/
-
-
-
-Array!(Ball*) balls;
-Array!(Tile*) tiles;
+Dvector!(Ball*) balls;
+Dvector!(Tile*) tiles;
 
 void logSDLError(string msg) nothrow @nogc{
 	printf("%s: %s \n", msg.ptr, SDL_GetError());
@@ -92,9 +86,9 @@ void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y) nothrow @n
 
 void drawTiles(SDL_Texture *texTile, SDL_Renderer *ren) nothrow @nogc{
     
-    foreach(tile; tiles){
-        auto x = cast(int)tile.get_position().x;
-        auto y = cast(int)tile.get_position().y;
+    for(int i = 0; i<tiles.length; i++){
+        auto x = cast(int)tiles[i].get_position().x;
+        auto y = cast(int)tiles[i].get_position().y;
         
         //SDL_RenderCopy(ren, texTile, null, null);
         renderTexture(texTile, ren, x, y, 53, 26);
@@ -115,16 +109,17 @@ void createTiles(int pattern) nothrow @nogc{
     if(tiles.length == 0){
         foreach(tp; tile_positions){
             auto a_tile = cast(Tile*)malloc(Tile.sizeof); a_tile._init_(tp);//mallocEmplace!Tile(tp);
-            tiles ~= a_tile;
+            tiles.pBack(a_tile); // ~= a_tile;
         }
     }
 }
 
-int main() {
-    DerelictSDL2.load();
-    DerelictSDL2Image.load();
+int main() /*nothrow @nogc*/ {
     
-    //resPath = getResourcePath();
+    SDLSupport ret = loadSDL(); // todo: fix nogc issue
+    
+    balls._init_();
+    tiles._init_();
     
     if (SDL_Init(SDL_INIT_VIDEO) != 0){
         logSDLError("SDL_Init Error: ");
@@ -183,7 +178,7 @@ int main() {
     
     Ball* _ball = cast(Ball*)malloc(Ball.sizeof);
     _ball._init_(Point!float(SCREEN_WIDTH/2, SCREEN_HEIGHT-50));
-    balls ~=  _ball; //mallocEmplace!Ball(Point!float(SCREEN_WIDTH/2, SCREEN_HEIGHT-50));
+    balls.pBack(_ball); //~=  _ball; //mallocEmplace!Ball(Point!float(SCREEN_WIDTH/2, SCREEN_HEIGHT-50));
     
     SDL_Event event;
     bool quit = false;
@@ -226,7 +221,8 @@ int main() {
                 if (event.key.keysym.sym == SDLK_SPACE) {
                     Ball* bl = cast(Ball*)malloc(Ball.sizeof);
                     bl._init_(Point!float(_paddle.position.x + padlen/2, _paddle.position.y - 20));
-                    balls ~= bl;
+                    balls.pBack(bl); //~= bl;
+                    //printf("%d \n", balls.length);
                     //balls ~= mallocEmplace!Ball(Point!float(_paddle.position.x + padlen/2, _paddle.position.y - 20));
                 }
                 if (event.key.keysym.sym == SDLK_1) {
@@ -251,19 +247,19 @@ int main() {
     return 0;
 }
 
-void freeALLInstances(T)(T arr){
-    foreach(elem; arr){
-        free(elem);//destroyFree(elem);
+void freeALLInstances(T)(T arr) nothrow @nogc{
+    for(int i = 0; i < arr.length; i++){
+        free(arr[i]);//destroyFree(elem);
     }
-    //arr.free();
+    arr.free();
 }
 
-void drawUpdateBalls(double dt, SDL_Renderer *ren, SDL_Texture *texBall, Paddle* paddle){
-    foreach(ball; balls){
+void drawUpdateBalls(double dt, SDL_Renderer *ren, SDL_Texture *texBall, Paddle* paddle) nothrow @nogc{
+    for(int i = 0; i < balls.length; i++){
         //float factor = ball.ballSpeed * dt;
-        ball.update_ball(paddle.position, padlen, tiles, dt);
+        balls[i].update_ball(paddle.position, padlen, tiles, dt);
         
-        renderTexture(texBall, ren, ball.position.x.to!int, ball.position.y.to!int, b_radius.to!int, b_radius.to!int);
+        renderTexture(texBall, ren, cast(int)balls[i].position.x, cast(int)balls[i].position.y, cast(int)b_radius, cast(int)b_radius);
     }
 }
 
@@ -278,27 +274,27 @@ void update_pad(Paddle* m_pad, SDL_Event event) nothrow @nogc{
     
 }
 
-void removeDeadBalls(){
+void removeDeadBalls() nothrow @nogc {
     if (balls.length > 0){
-        for(size_t k = 0; k < balls.length; k++) {
+        for(int k = 0; k < balls.length; k++) {
             if (balls[k].is_alive() == false) {
                 free(balls[k]);//destroyFree(balls[k]);
                 //balls.removeAt(k);
-                balls.linearRemove(balls[k..k+1]);
+                balls.remove(k);
                 break;
             }
         }
     }
 }
 
-void removeDeadTiles(){
+void removeDeadTiles() nothrow @nogc {
     if (tiles.length > 0) {
-        for (size_t k = 0; k < tiles.length; k++) {
+        for(int k = 0; k < tiles.length; k++) {
             
             if (tiles[k].is_alive() == false) {
                 free(tiles[k]); //destroyFree(tiles[k]);
                 //tiles.removeAt(k);
-                tiles.linearRemove(tiles[k..k+1]);
+                tiles.remove(k);
                 break;
                 
             }

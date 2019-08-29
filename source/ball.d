@@ -8,52 +8,12 @@ import std.random;
 
 //import dlib.container;
 import std.container;
+
+
 import types;
 import tile;
 import globals;
-
-bool contains(T)(Rect!T rect1, Rect!T rect2){
-    
-    auto l1 = rect1.p1;
-    auto r1 = rect1.p2;
-    
-    auto l2 = rect2.p1;
-    auto r2 = rect2.p2;
-    
-    if (l1.x > r2.x || l2.x > r1.x) 
-        return false; 
-        
-    if (l1.y < r2.y || l2.y < r1.y) 
-        return false; 
-  
-    return true; 
-}
-
-bool contains(T)(Rect!T rect, Point!T p){
-    T x1 = rect.p1.x;
-    T y1 = rect.p1.y;
-    T x2 = rect.p2.x;
-    T y2 = rect.p2.y;
-    T x = p.x;
-    T y = p.y;
-    
-    if (x > x1 && x < x2 && y > y1 && y < y2) 
-        return true; 
-  
-    return false; 
-}
-
-bool contains(T)(Rect!T rect, T x, T y){
-    T x1 = rect.p1.x;
-    T y1 = rect.p1.y;
-    T x2 = rect.p2.x;
-    T y2 = rect.p2.y;
-    
-    if (x > x1 && x < x2 && y > y1 && y < y2) 
-        return true; 
-  
-    return false; 
-}
+import vvector;
 
 struct Ball {
     float stepx;
@@ -64,12 +24,12 @@ struct Ball {
     
     int speed;
     
-    void _init_(Point!float pos){
+    void _init_(Point!float pos) nothrow @nogc {
         position = pos;
         speed = 100;
         alive = true;
-        auto rnd = Random(unpredictableSeed);
-        stepx = uniform!"[]"(1.5f, 2.0f, rnd);
+        //auto rnd = Random(unpredictableSeed);
+        stepx = rndFloat(1.5f, 2.0f); //uniform!"[]"(1.5f, 2.0f, rnd);
         stepy = -(4-sin(stepx)) ;//-factor*cos(stAngle*PI/180.0f);
     }
     /*
@@ -83,31 +43,31 @@ struct Ball {
         return this;
     }
     */
-    void set_stepx(float stepx_){
+    void set_stepx(float stepx_) nothrow @nogc{
         this.stepx = stepx_;
     }
 
-    void set_stepy(float stepy_){
+    void set_stepy(float stepy_) nothrow @nogc{
         this.stepy = stepy_;
     }
 
-    Point!float get_position(){
+    Point!float get_position() nothrow @nogc{
         return this.position;
     }
 
-    void set_position(Point!float position_){
+    void set_position(Point!float position_) nothrow @nogc {
         this.position = position_;
     }
 
-    bool is_alive(){
+    bool is_alive() nothrow @nogc {
         return this.alive;
     }
 
-    void killTheBall(){
+    void killTheBall() nothrow @nogc{
         this.alive = false;
     }
     
-    void update_ball(Point!int padposition, int padlen, Array!(Tile*) tiles, double dt){
+    void update_ball(Point!int padposition, int padlen, Dvector!(Tile*) tiles, double dt) nothrow @nogc {
         
         float pad_x = padposition.x.to!float;
         float pad_y = padposition.y.to!float;
@@ -139,7 +99,8 @@ struct Ball {
         if (ball_x < 0 || ball_x + b_radius >= SCREEN_WIDTH){ this.set_stepx(-this.stepx);} // collision check for sides
         
         if (tiles.length != 0 ) { // collision check for tiles
-            foreach(it; tiles){
+            for(int i = 0; i < tiles.length; i++){
+                auto it = tiles[i];
                 Point!float tpos = it.get_position();
                 // Brick x and y coordinates
                 float brickx = tpos.x + tileoffsetx;
@@ -227,7 +188,7 @@ struct Ball {
     
     }
     
-    float getReflection(float hitx) {
+    float getReflection(float hitx) nothrow @nogc{
         // Make sure the hitx variable is within the width of the paddle
         if (hitx < 0) {
             hitx = 0;
@@ -244,7 +205,7 @@ struct Ball {
         return ballReflScale * (hitx / (padlen / ballReflScale));
     }
     
-    void ballBrickResponse(int dirindex) {
+    void ballBrickResponse(int dirindex)  nothrow @nogc{
         // dirindex 0: Left, 1: Top, 2: Right, 3: Bottom
      
         // Direction factors

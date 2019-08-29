@@ -19,14 +19,14 @@ struct Tile {
         return this.position;
     }
 
-    void set_position(Point!float position_){
+    void set_position(Point!float position_) nothrow @nogc{
         this.position = position_;
     }
 
-    void die(){
+    void die()  nothrow @nogc{
         this.alive = false;
     }
-    bool is_alive(){
+    bool is_alive() nothrow @nogc{
         return this.alive;
     }
     
