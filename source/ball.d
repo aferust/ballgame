@@ -1,14 +1,7 @@
 
 module ball;
 
-import std.math;
-import std.conv;
-import std.stdio;
-import std.random;
-
-//import dlib.container;
-import std.container;
-
+import core.stdc.math;
 
 import types;
 import tile;
@@ -69,8 +62,8 @@ struct Ball {
     
     void update_ball(Point!int padposition, int padlen, Dvector!(Tile*) tiles, double dt) nothrow @nogc {
         
-        float pad_x = padposition.x.to!float;
-        float pad_y = padposition.y.to!float;
+        float pad_x = cast(float)padposition.x;
+        float pad_y = cast(float)padposition.y;
         
         float ball_x = this.position.x;
         float ball_y = this.position.y;

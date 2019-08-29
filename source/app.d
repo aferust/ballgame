@@ -1,12 +1,10 @@
 module app;
 
 import core.stdc.stdlib;
+import core.stdc.stdio;
 
-import std.stdio;
-import std.conv;
 import std.string;
 import std.stdint;
-import std.container;
 
 import bindbc.sdl;
 import bindbc.sdl.image;
@@ -16,12 +14,12 @@ import ball;
 import paddle;
 import tile;
 import tilegen;
-import memory;
 import globals;
 import vvector;
 
 Dvector!(Ball*) balls;
 Dvector!(Tile*) tiles;
+string exePath;
 
 void logSDLError(string msg) nothrow @nogc{
 	printf("%s: %s \n", msg.ptr, SDL_GetError());
@@ -37,7 +35,7 @@ string getResourcePath(string res_name) nothrow @nogc{
     }else{
         string sep = "/";
     }
-    const char* root_path = SDL_GetBasePath();
+    const char* root_path = "";//exePath.ptr;//SDL_GetBasePath();
     
     snprintf(buff.ptr, buff.length, "%.*s%.*s%.*s%.*s",
                  strlen(root_path), root_path,
@@ -104,20 +102,29 @@ void drawPaddle(SDL_Renderer *ren, Paddle* paddle) nothrow @nogc{
 
 void createTiles(int pattern) nothrow @nogc{
     auto t_p = cast(TilePattern*)malloc(TilePattern.sizeof); t_p._init_(tile_w, tile_h); //mallocEmplace!TilePattern(tile_w, tile_h);
-    Array!(Point!float) tile_positions = t_p.get_tile_positions(pattern);
-    free(t_p); //destroyFree(t_p);
+    Dvector!(Point2f*) tile_positions = t_p.get_tile_positions(pattern);
+    
     if(tiles.length == 0){
-        foreach(tp; tile_positions){
-            auto a_tile = cast(Tile*)malloc(Tile.sizeof); a_tile._init_(tp);//mallocEmplace!Tile(tp);
+        for(int i = 0; i < tile_positions.length; i++){
+        	Point2f* tp = tile_positions[i];
+            auto a_tile = cast(Tile*)malloc(Tile.sizeof); a_tile._init_(*tp);//mallocEmplace!Tile(tp);
             tiles.pBack(a_tile); // ~= a_tile;
         }
     }
+    t_p.freeChildren();
+    free(t_p); //destroyFree(t_p);
 }
 
-int main() /*nothrow @nogc*/ {
+int main(string[] args) /*nothrow @nogc */{
     
-    SDLSupport ret = loadSDL(); // todo: fix nogc issue
-    
+    version(BindSDL_Static){
+    	 // todo: fix nogc issue
+    }else{
+    	SDLSupport ret = loadSDL();
+    }
+
+    //exePath = args[0];
+
     balls._init_();
     tiles._init_();
     
