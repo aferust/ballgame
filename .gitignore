@@ -1,6 +1,4 @@
 .dub
-/tmp
-/pong_multiballs
 *.zip
 dub.selections.json
 docs.json
