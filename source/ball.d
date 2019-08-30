@@ -76,8 +76,7 @@ struct Ball {
         
         if (tiles.length != 0 ) { // collision check for tiles
             // based on: http://rembound.com/articles/the-breakout-tutorial-with-cpp-and-sdl-2
-            for(int i = 0; i < tiles.length; i++){
-                auto it = tiles[i];
+            foreach(it; tiles){
                 Point!float tpos = it.get_position();
                 // Brick x and y coordinates
                 float brickx = tpos.x + tileoffsetx;

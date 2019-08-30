@@ -27,7 +27,7 @@ struct TilePattern {
                 foreach (col;6..10) {
                     auto p = cast(Point2f*)malloc(Point2f.sizeof);
                     p.x = row*tw; p.y = col*th;
-                    positions.pBack(p);
+                    positions ~= p;
                 }
             }
         }else{
@@ -35,7 +35,7 @@ struct TilePattern {
                 foreach (col; 0..20) {
                     auto p = cast(Point2f*)malloc(Point2f.sizeof);
                     p.x = row*tw; p.y = col*th;
-                    positions.pBack(p);
+                    positions ~= p;
                 }
             }
         }

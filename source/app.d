@@ -88,9 +88,9 @@ void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y) nothrow @n
 
 void drawTiles(SDL_Texture *texTile, SDL_Renderer *ren) nothrow @nogc{
     
-    for(int i = 0; i<tiles.length; i++){
-        auto x = cast(int)tiles[i].get_position().x;
-        auto y = cast(int)tiles[i].get_position().y;
+    foreach(tl; tiles){
+        auto x = cast(int)tl.get_position().x;
+        auto y = cast(int)tl.get_position().y;
         
         //SDL_RenderCopy(ren, texTile, null, null);
         renderTexture(texTile, ren, x, y, 53, 26);
@@ -109,17 +109,16 @@ void createTiles(int pattern) nothrow @nogc{
     Dvector!(Point2f*) tile_positions = t_p.get_tile_positions(pattern);
     
     if(tiles.length == 0){
-        for(int i = 0; i < tile_positions.length; i++){
-        	Point2f* tp = tile_positions[i];
+        foreach(tp; tile_positions){
             auto a_tile = cast(Tile*)malloc(Tile.sizeof); a_tile._init_(*tp);
-            tiles.pBack(a_tile); // ~= a_tile;
+            tiles ~= a_tile;
         }
     }
     t_p.freeChildren();
     free(t_p);
 }
 
-int main(string[] args) nothrow @nogc {
+extern(C) int main(string[] args) nothrow @nogc {
     
     version(BindSDL_Static){
     	 // todo: some stuff
@@ -187,7 +186,7 @@ int main(string[] args) nothrow @nogc {
     
     Ball* _ball = cast(Ball*)malloc(Ball.sizeof);
     _ball._init_(Point!float(SCREEN_WIDTH/2, SCREEN_HEIGHT-50));
-    balls.pBack(_ball);
+    balls ~= _ball;
     
     SDL_Event event;
     bool quit = false;
@@ -210,8 +209,8 @@ int main(string[] args) nothrow @nogc {
         drawPaddle(ren, _paddle);
         update_pad(_paddle, event);
         
-        removeDeadBalls();
-        removeDeadTiles();
+        removeDeadInstances(balls);
+        removeDeadInstances(tiles);
         
         drawUpdateBalls(dt, ren, texBall, _paddle);
         //Update the screen
@@ -226,7 +225,7 @@ int main(string[] args) nothrow @nogc {
                 if (event.key.keysym.sym == SDLK_SPACE) {
                     Ball* bl = cast(Ball*)malloc(Ball.sizeof);
                     bl._init_(Point!float(_paddle.position.x + padlen/2, _paddle.position.y - 20));
-                    balls.pBack(bl);
+                    balls ~= bl;
                 }
                 if (event.key.keysym.sym == SDLK_1) {
                     createTiles(0);
@@ -275,27 +274,13 @@ void update_pad(Paddle* m_pad, SDL_Event event) nothrow @nogc{
     
 }
 
-void removeDeadBalls() nothrow @nogc {
-    if (balls.length > 0){
-        for(int k = 0; k < balls.length; k++) {
-            if (balls[k].is_alive() == false) {
-                free(balls[k]);
-                balls.remove(k);
+void removeDeadInstances(T)(ref T arr) nothrow @nogc {
+    if (arr.length > 0){
+        foreach(i, elem; arr){
+            if (elem.is_alive() == false) {
+                free(elem);
+                arr.remove(i);
                 break;
-            }
-        }
-    }
-}
-
-void removeDeadTiles() nothrow @nogc {
-    if (tiles.length > 0) {
-        for(int k = 0; k < tiles.length; k++) {
-            
-            if (tiles[k].is_alive() == false) {
-                free(tiles[k]);
-                tiles.remove(k);
-                break;
-                
             }
         }
     }

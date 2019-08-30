@@ -8,7 +8,7 @@ struct Dvector(T) {
     
     alias opDollar = length;
     
-    void _init_() @nogc nothrow{ // is there a better way for ctor with betterC?
+    void _init_() @nogc nothrow{ // this is needed for now
         length = 0;
         vector_init(&v);
     }
@@ -16,6 +16,11 @@ struct Dvector(T) {
     void pBack(T elem) @nogc nothrow{
         vector_add(&v, elem);
         length ++;
+    }
+    
+    auto opCatAssign(T c){
+        pBack(c);
+        return this;
     }
     
     T opIndex(int i) @nogc nothrow {
@@ -32,13 +37,39 @@ struct Dvector(T) {
     }
     
     void free(){
+        length = 0;
         vector_free(&v);
     }
     
-    // TODO: opApply for foreach loops
+    int opApply(int delegate(T) @nogc nothrow dg) @nogc nothrow{
+        int result = 0;
+
+        for (int k = 0; k < length; ++k) {
+            result = dg(cast(T)vector_get(&v, k));
+
+            if (result) {
+                break;
+            }
+        }
+        return result;
+    }
+    
+    int opApply(int delegate(int i, T) @nogc nothrow dg) @nogc nothrow{
+        int result = 0;
+
+        for (int k = 0; k < length; ++k) {
+            result = dg(k, cast(T)vector_get(&v, k));
+
+            if (result) {
+                break;
+            }
+        }
+        return result;
+    }
 }
 
 // based on https://eddmann.com/posts/implementing-a-dynamic-vector-array-in-c/
+// the original C implementation of the code is credited to Edd Mann
 enum VECTOR_INIT_CAPACITY = 4;
 
 private @nogc nothrow:

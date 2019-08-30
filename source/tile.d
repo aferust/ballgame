@@ -23,7 +23,7 @@ struct Tile {
         this.position = position_;
     }
 
-    void die()  nothrow @nogc{
+    void die() nothrow @nogc{
         this.alive = false;
     }
     bool is_alive() nothrow @nogc{
