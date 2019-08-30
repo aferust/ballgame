@@ -17,5 +17,6 @@ ballgame-test-*
 *.dll
 *.o
 *.obj
+*.lib
 *.lst
 *.geany

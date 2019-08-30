@@ -4,8 +4,9 @@ import core.stdc.stdlib;
 
 import types;
 import globals;
-import vvector;
+import dvector;
 
+// very stupid way of generating tiles/bricks. just used heap for testing our mallocs
 struct TilePattern {
     
     float tw;

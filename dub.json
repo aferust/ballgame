@@ -8,5 +8,12 @@
 	"name": "ballgame",
     "dependencies": {
         "bindbc-sdl": "~>0.1.0"
-    }
+    },
+    "subConfigurations": {
+        "bindbc-sdl": "staticBC"
+    },
+    "versions": [
+        "BindSDL_Image"
+    ],
+    "libs": ["SDL2", "SDL2_image"]
 }

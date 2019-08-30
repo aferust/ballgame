@@ -6,7 +6,7 @@ import core.stdc.math;
 import types;
 import tile;
 import globals;
-import vvector;
+import dvector;
 
 struct Ball {
     float stepx;
@@ -21,21 +21,10 @@ struct Ball {
         position = pos;
         speed = 100;
         alive = true;
-        //auto rnd = Random(unpredictableSeed);
-        stepx = rndFloat(1.5f, 2.0f); //uniform!"[]"(1.5f, 2.0f, rnd);
-        stepy = -(4-sin(stepx)) ;//-factor*cos(stAngle*PI/180.0f);
+        stepx = rndFloat(1.5f, 2.0f); 
+        stepy = -(4-sin(stepx));
     }
-    /*
-    this(){
-        position = Point!float(SCREEN_WIDTH/2, SCREEN_HEIGHT-50);
-    
-        alive = true;
-        auto rnd = Random(unpredictableSeed);
-        stepx = uniform!"[]"(1.5f, 2.0f, rnd);
-        stepy = -(4-sin(stepx)) ;//-factor*cos(stAngle*PI/180.0f);
-        return this;
-    }
-    */
+
     void set_stepx(float stepx_) nothrow @nogc{
         this.stepx = stepx_;
     }
@@ -74,13 +63,7 @@ struct Ball {
                 // where did it hit?
                 this.set_stepx(getReflection(this.get_position.x - padposition.x));
                 this.set_stepy(-this.stepy);
-                /*float rlx = pad_x - ball_x;
-                float nrlx = (rlx/(padlen));
-                float bAngle = nrlx * 140;
-                
-                this.set_stepx(-factor*sin(bAngle*PI/180.0f));
-                this.set_stepy(-factor*cos(bAngle*PI/180.0f));
-                */
+
             } else {
                 
                 this.killTheBall();
@@ -92,6 +75,7 @@ struct Ball {
         if (ball_x < 0 || ball_x + b_radius >= SCREEN_WIDTH){ this.set_stepx(-this.stepx);} // collision check for sides
         
         if (tiles.length != 0 ) { // collision check for tiles
+            // based on: http://rembound.com/articles/the-breakout-tutorial-with-cpp-and-sdl-2
             for(int i = 0; i < tiles.length; i++){
                 auto it = tiles[i];
                 Point!float tpos = it.get_position();

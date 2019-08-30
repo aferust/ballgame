@@ -1,4 +1,4 @@
-module vvector;
+module dvector;
 
 import core.stdc.stdlib;
 
@@ -8,7 +8,7 @@ struct Dvector(T) {
     
     alias opDollar = length;
     
-    void _init_() @nogc nothrow{
+    void _init_() @nogc nothrow{ // is there a better way for ctor with betterC?
         length = 0;
         vector_init(&v);
     }
@@ -34,6 +34,8 @@ struct Dvector(T) {
     void free(){
         vector_free(&v);
     }
+    
+    // TODO: opApply for foreach loops
 }
 
 // based on https://eddmann.com/posts/implementing-a-dynamic-vector-array-in-c/
