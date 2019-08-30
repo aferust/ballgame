@@ -20,3 +20,4 @@ ballgame-test-*
 *.lib
 *.lst
 *.geany
+*.s
