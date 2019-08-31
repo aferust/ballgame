@@ -3,19 +3,18 @@ module dvector;
 import core.stdc.stdlib;
 
 struct Dvector(T) {
-    vector v;
-    size_t length = 0;
+    private vector v;
     
-    alias opDollar = length;
+    size_t length() @nogc nothrow{
+        return cast(size_t)vector_total(&v);
+    }
     
     void _init_() @nogc nothrow{ // this is needed for now
-        length = 0;
         vector_init(&v);
     }
     
     void pBack(T elem) @nogc nothrow{
         vector_add(&v, elem);
-        length ++;
     }
     
     auto opCatAssign(T c){
@@ -33,11 +32,9 @@ struct Dvector(T) {
     
     void remove(int i) @nogc nothrow{
         vector_delete(&v, i);
-        length --;
     }
     
     void free(){
-        length = 0;
         vector_free(&v);
     }
     
@@ -80,11 +77,12 @@ struct vector {
     int total;
 }
 
-void vector_init(vector *v)
+vector * vector_init(vector *v)
 {
     v.capacity = VECTOR_INIT_CAPACITY;
     v.total = 0;
     v.items = cast(void**)malloc((void*).sizeof * v.capacity);
+    return v;
 }
 
 int vector_total(vector *v)
