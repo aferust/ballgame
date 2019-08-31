@@ -9,7 +9,7 @@ struct Dvector(T) {
         return cast(size_t)vector_total(&v);
     }
     
-    void _init_() @nogc nothrow{ // this is needed for now
+    void _init_() @nogc nothrow{
         vector_init(&v);
     }
     
