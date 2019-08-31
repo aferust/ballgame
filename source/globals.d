@@ -20,3 +20,8 @@ float rndFloat(float lo, float up) nothrow @nogc{
     
     return (up-lo)*(cast(float)rand())/RAND_MAX + lo;
 }
+
+T* mallocOne(T)(){
+    import core.stdc.stdlib;
+    return cast(T*)malloc(T.sizeof);
+} 

@@ -25,7 +25,7 @@ struct TilePattern {
         if(seed == 0){
             foreach (row; 0..15) {
                 foreach (col;6..10) {
-                    auto p = cast(Point2f*)malloc(Point2f.sizeof);
+                    auto p = mallocOne!Point2f;
                     p.x = row*tw; p.y = col*th;
                     positions ~= p;
                 }

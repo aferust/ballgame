@@ -105,12 +105,12 @@ void drawPaddle(SDL_Renderer *ren, Paddle* paddle) nothrow @nogc{
 }
 
 void createTiles(int pattern) nothrow @nogc{
-    auto t_p = cast(TilePattern*)malloc(TilePattern.sizeof); t_p._init_(tile_w, tile_h);
+    auto t_p = mallocOne!TilePattern; t_p._init_(tile_w, tile_h);
     Dvector!(Point2f*) tile_positions = t_p.get_tile_positions(pattern);
     
     if(tiles.length == 0){
         foreach(tp; tile_positions){
-            auto a_tile = cast(Tile*)malloc(Tile.sizeof); a_tile._init_(*tp);
+            auto a_tile = mallocOne!Tile; a_tile._init_(*tp);
             tiles ~= a_tile;
         }
     }
@@ -181,10 +181,10 @@ extern(C) int main(string[] args) nothrow @nogc {
     
     createTiles(0);
     
-    Paddle* _paddle = cast(Paddle*)malloc(Paddle.sizeof);
+    Paddle* _paddle = mallocOne!Paddle;
     _paddle.position = Point!int(SCREEN_WIDTH/2, SCREEN_HEIGHT-30);
     
-    Ball* _ball = cast(Ball*)malloc(Ball.sizeof);
+    Ball* _ball = mallocOne!Ball;
     _ball._init_(Point!float(SCREEN_WIDTH/2, SCREEN_HEIGHT-50));
     balls ~= _ball;
     
@@ -223,7 +223,7 @@ extern(C) int main(string[] args) nothrow @nogc {
                     quit = true;
                 }
                 if (event.key.keysym.sym == SDLK_SPACE) {
-                    Ball* bl = cast(Ball*)malloc(Ball.sizeof);
+                    Ball* bl = mallocOne!Ball;
                     bl._init_(Point!float(_paddle.position.x + padlen/2, _paddle.position.y - 20));
                     balls ~= bl;
                 }
