@@ -7,7 +7,8 @@
 	"license": "boost",
 	"name": "ballgame",
     "dependencies": {
-        "bindbc-sdl": "~>0.1.0"
+        "bindbc-sdl": "~>0.1.0",
+        "dvector": "~master"
     },
     "subConfigurations": {
         "bindbc-sdl": "staticBC"
