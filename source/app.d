@@ -276,11 +276,10 @@ void update_pad(Paddle* m_pad, SDL_Event event) nothrow @nogc{
 
 void removeDeadInstances(T)(ref T arr) nothrow @nogc {
     if (arr.length > 0){
-        foreach(i, elem; arr){
-            if (elem.is_alive() == false) {
-                free(elem);
+        for(int i = cast(int)arr.length; i-- > 0; ){
+            if (arr[i].is_alive() == false) {
+                free(arr[i]);
                 arr.remove(i);
-                break;
             }
         }
     }
