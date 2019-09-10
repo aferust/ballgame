@@ -19,3 +19,4 @@ ballgame-test-*
 *.lst
 *.geany
 *.s
+.vscode
