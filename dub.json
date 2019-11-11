@@ -10,6 +10,7 @@
         "bindbc-sdl": "~>0.1.0",
         "dvector": "0.0.2"
     },
+    "dflags": ["-betterC"],
     "subConfigurations": {
         "bindbc-sdl": "staticBC"
     },
