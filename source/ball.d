@@ -1,4 +1,3 @@
-
 module ball;
 
 import core.stdc.math;
@@ -17,7 +16,7 @@ struct Ball {
     
     int speed;
     
-    void _init_(Point!float pos) nothrow @nogc {
+    this(Point!float pos) nothrow @nogc {
         position = pos;
         speed = 100;
         alive = true;
@@ -49,14 +48,14 @@ struct Ball {
         this.alive = false;
     }
     
-    void update_ball(Point!int padposition, int padlen, Dvector!(Tile*) tiles, double dt) nothrow @nogc {
+    void update_ball(Point!int padposition, int padlen, ref Dvector!Tile tiles, double dt) nothrow @nogc {
         
         float pad_x = cast(float)padposition.x;
         float pad_y = cast(float)padposition.y;
         
         float ball_x = this.position.x;
         float ball_y = this.position.y;
-        //this.stepy.writeln;
+
         if (ball_y + b_radius >= pad_y){
             
             if (ball_x + b_radius > pad_x && ball_x < pad_x + padlen){ // did the ball hit the pad?
@@ -76,7 +75,7 @@ struct Ball {
         
         if (tiles.length != 0 ) { // collision check for tiles
             // based on: http://rembound.com/articles/the-breakout-tutorial-with-cpp-and-sdl-2
-            foreach(it; tiles){
+            foreach(ref it; tiles){
                 Point!float tpos = it.get_position();
                 // Brick x and y coordinates
                 float brickx = tpos.x + tileoffsetx;

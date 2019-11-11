@@ -8,7 +8,7 @@
 	"name": "ballgame",
     "dependencies": {
         "bindbc-sdl": "~>0.1.0",
-        "dvector": "~master"
+        "dvector": "0.0.2"
     },
     "subConfigurations": {
         "bindbc-sdl": "staticBC"

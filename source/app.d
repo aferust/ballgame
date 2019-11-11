@@ -22,8 +22,8 @@ import tilegen;
 import globals;
 import dvector;
 
-Dvector!(Ball*) balls;
-Dvector!(Tile*) tiles;
+Dvector!Ball balls;
+Dvector!Tile tiles;
 
 void logSDLError(string msg) nothrow @nogc{
 	printf("%s: %s \n", msg.ptr, SDL_GetError());
@@ -98,24 +98,23 @@ void drawTiles(SDL_Texture *texTile, SDL_Renderer *ren) nothrow @nogc{
     }
 }
 
-void drawPaddle(SDL_Renderer *ren, Paddle* paddle) nothrow @nogc{
+void drawPaddle(SDL_Renderer *ren, Paddle paddle) nothrow @nogc{
     SDL_SetRenderDrawColor( ren, 0, 0, 255, 255);
     SDL_Rect r = SDL_Rect(paddle.position.x, paddle.position.y, padlen, padH);
     SDL_RenderFillRect( ren, &r );
 }
 
 void createTiles(int pattern) nothrow @nogc{
-    auto t_p = mallocOne!TilePattern; t_p._init_(tile_w, tile_h);
-    Dvector!(Point2f*) tile_positions = t_p.get_tile_positions(pattern);
+    auto t_p = TilePattern(tile_w, tile_h);
+    Dvector!Point2f tile_positions = t_p.get_tile_positions(pattern);
     
     if(tiles.length == 0){
         foreach(tp; tile_positions){
-            auto a_tile = mallocOne!Tile; a_tile._init_(*tp);
+            auto a_tile = Tile(tp);
             tiles ~= a_tile;
         }
     }
-    t_p.freeChildren();
-    free(t_p);
+    t_p.free;
 }
 
 extern(C) int main(string[] args) nothrow @nogc {
@@ -125,9 +124,6 @@ extern(C) int main(string[] args) nothrow @nogc {
     }else{
     	SDLSupport ret = loadSDL();
     }
-
-    balls._init_();
-    tiles._init_();
     
     if (SDL_Init(SDL_INIT_VIDEO) != 0){
         logSDLError("SDL_Init Error: ");
@@ -181,11 +177,10 @@ extern(C) int main(string[] args) nothrow @nogc {
     
     createTiles(0);
     
-    Paddle* _paddle = mallocOne!Paddle;
+    Paddle _paddle = Paddle();
     _paddle.position = Point!int(SCREEN_WIDTH/2, SCREEN_HEIGHT-30);
     
-    Ball* _ball = mallocOne!Ball;
-    _ball._init_(Point!float(SCREEN_WIDTH/2, SCREEN_HEIGHT-50));
+    Ball _ball = Ball(Point2f(SCREEN_WIDTH/2, SCREEN_HEIGHT-50));
     balls ~= _ball;
     
     SDL_Event event;
@@ -223,8 +218,7 @@ extern(C) int main(string[] args) nothrow @nogc {
                     quit = true;
                 }
                 if (event.key.keysym.sym == SDLK_SPACE) {
-                    Ball* bl = mallocOne!Ball;
-                    bl._init_(Point!float(_paddle.position.x + padlen/2, _paddle.position.y - 20));
+                    Ball bl = Ball(Point!float(_paddle.position.x + padlen/2, _paddle.position.y - 20));
                     balls ~= bl;
                 }
                 if (event.key.keysym.sym == SDLK_1) {
@@ -237,7 +231,6 @@ extern(C) int main(string[] args) nothrow @nogc {
         }
     }
     
-    free(_paddle);
     freeALLInstances(balls);
     freeALLInstances(tiles);
     
@@ -250,20 +243,17 @@ extern(C) int main(string[] args) nothrow @nogc {
 }
 
 void freeALLInstances(T)(T arr) nothrow @nogc{
-    for(int i = 0; i < arr.length; i++){
-        free(arr[i]);
-    }
     arr.free();
 }
 
-void drawUpdateBalls(double dt, SDL_Renderer *ren, SDL_Texture *texBall, Paddle* paddle) nothrow @nogc{
+void drawUpdateBalls(double dt, SDL_Renderer *ren, SDL_Texture *texBall, ref Paddle paddle) nothrow @nogc {
     for(int i = 0; i < balls.length; i++){
         balls[i].update_ball(paddle.position, padlen, tiles, dt);
         renderTexture(texBall, ren, cast(int)balls[i].position.x, cast(int)balls[i].position.y, cast(int)b_radius, cast(int)b_radius);
     }
 }
 
-void update_pad(Paddle* m_pad, SDL_Event event) nothrow @nogc{
+void update_pad(ref Paddle m_pad, SDL_Event event) nothrow @nogc{
     float increment = 10.0f;
     
     if (event.type == SDL_MOUSEMOTION){
@@ -278,7 +268,6 @@ void removeDeadInstances(T)(ref T arr) nothrow @nogc {
     if (arr.length > 0){
         for(int i = cast(int)arr.length; i-- > 0; ){
             if (arr[i].is_alive() == false) {
-                free(arr[i]);
                 arr.remove(i);
             }
         }

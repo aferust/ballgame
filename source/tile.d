@@ -8,7 +8,7 @@ struct Tile {
     Point!float position;
     bool alive;
     
-    void _init_(Point!float m_pos) nothrow @nogc{
+    this(Point!float m_pos) nothrow @nogc{
         position = m_pos;
         
         alive = true;
@@ -19,7 +19,7 @@ struct Tile {
         return this.position;
     }
 
-    void set_position(Point!float position_) nothrow @nogc{
+    void set_position(Point!float position_) nothrow @nogc {
         this.position = position_;
     }
 
