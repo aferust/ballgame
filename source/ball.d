@@ -16,7 +16,7 @@ struct Ball {
     
     float speed;
 
-    float sinceLastHit;
+    float collidDelayer;
     
     this(Point!float pos) nothrow @nogc {
         position = pos;
@@ -24,6 +24,8 @@ struct Ball {
         alive = true;
         stepx = rndFloat(1.5f, 2.0f); 
         stepy = -(4-sin(stepx));
+
+        collidDelayer = 0.0f;
     }
 
     bool is_alive() nothrow @nogc {
@@ -33,9 +35,19 @@ struct Ball {
     void killTheBall() nothrow @nogc{
         this.alive = false;
     }
-    
+    bool enoughTimePassed() nothrow @nogc { // I don't want the ball to kill more than one tile in the same time
+        bool ret = false;
+        if(collidDelayer > 0.02){
+            ret = true;
+            collidDelayer = 0.0f;
+        }
+
+        return ret;
+    }
+
     void update_ball(Point!int padposition, int padlen, ref Dvector!Tile tiles, double dt) nothrow @nogc {
-        
+        collidDelayer += dt;
+
         float pad_x = cast(float)padposition.x;
         float pad_y = cast(float)padposition.y;
         
@@ -44,7 +56,7 @@ struct Ball {
 
         if (ball_y + b_width >= pad_y){
             
-            if (ball_x + b_width > pad_x && ball_x < pad_x + padlen){ // did the ball hit the pad?
+            if ((ball_x + b_width > pad_x && ball_x < pad_x + padlen) && enoughTimePassed()){ // did the ball hit the pad?
                 // where did it hit?
                 stepx = getReflection(position.x - padposition.x);
                 stepy = -stepy;
@@ -53,13 +65,11 @@ struct Ball {
                 
                 this.killTheBall();
             }
-
-            sinceLastHit += dt;
         }
         
-        if (ball_y < 0) { stepy = -stepy;} // collision check for roof
+        if ((ball_y < 0) && enoughTimePassed()) { stepy = -stepy;} // collision check for roof
         
-        if (ball_x < 0 || ball_x + b_width >= SCREEN_WIDTH){ stepx = -stepx;} // collision check for sides
+        if ((ball_x < 0 || ball_x + b_width >= SCREEN_WIDTH) && enoughTimePassed()){ stepx = -stepx;} // collision check for sides
         
         if (tiles.length != 0 ) { // collision check for tiles
             // based on: http://rembound.com/articles/the-breakout-tutorial-with-cpp-and-sdl-2
@@ -77,10 +87,10 @@ struct Ball {
                 float brickcenterx = brickx + 0.5f*tile_w;
                 float brickcentery = bricky + 0.5f*tile_h;
  
-                if (position.x <= brickx + tile_w &&
+                if ((position.x <= brickx + tile_w &&
                     position.x+b_width >= brickx &&
                     position.y <= bricky + tile_h &&
-                    position.y + b_width >= bricky) {
+                    position.y + b_width >= bricky) && enoughTimePassed()) {
                     // Collision detected, remove the brick
                     it.die();
  
