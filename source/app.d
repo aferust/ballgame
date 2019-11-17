@@ -193,7 +193,7 @@ extern(C) int main(string[] args) nothrow @nogc {
     while (!quit){
         last = now;
         now = SDL_GetPerformanceCounter();
-        dt = cast(double)((now - last)/cast(double)SDL_GetPerformanceFrequency());
+        dt = double(now - last)/cast(double)SDL_GetPerformanceFrequency();
         
         //First clear the renderer
         SDL_RenderClear(ren);
@@ -231,8 +231,8 @@ extern(C) int main(string[] args) nothrow @nogc {
         }
     }
     
-    freeALLInstances(balls);
-    freeALLInstances(tiles);
+    balls.free;
+    tiles.free;
     
     SDL_DestroyTexture(tex);
     SDL_DestroyRenderer(ren);
@@ -240,10 +240,6 @@ extern(C) int main(string[] args) nothrow @nogc {
     SDL_Quit();
     
     return 0;
-}
-
-void freeALLInstances(T)(T arr) nothrow @nogc{
-    arr.free();
 }
 
 void drawUpdateBalls(double dt, SDL_Renderer *ren, SDL_Texture *texBall, ref Paddle paddle) nothrow @nogc {

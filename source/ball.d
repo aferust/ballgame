@@ -15,6 +15,8 @@ struct Ball {
     Point!float position;
     
     float speed;
+
+    float sinceLastHit;
     
     this(Point!float pos) nothrow @nogc {
         position = pos;
@@ -51,6 +53,8 @@ struct Ball {
                 
                 this.killTheBall();
             }
+
+            sinceLastHit += dt;
         }
         
         if (ball_y < 0) { stepy = -stepy;} // collision check for roof
