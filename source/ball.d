@@ -14,7 +14,7 @@ struct Ball {
     
     Point!float position;
     
-    int speed;
+    float speed;
     
     this(Point!float pos) nothrow @nogc {
         position = pos;
@@ -22,22 +22,6 @@ struct Ball {
         alive = true;
         stepx = rndFloat(1.5f, 2.0f); 
         stepy = -(4-sin(stepx));
-    }
-
-    void set_stepx(float stepx_) nothrow @nogc{
-        this.stepx = stepx_;
-    }
-
-    void set_stepy(float stepy_) nothrow @nogc{
-        this.stepy = stepy_;
-    }
-
-    Point!float get_position() nothrow @nogc{
-        return this.position;
-    }
-
-    void set_position(Point!float position_) nothrow @nogc {
-        this.position = position_;
     }
 
     bool is_alive() nothrow @nogc {
@@ -53,15 +37,15 @@ struct Ball {
         float pad_x = cast(float)padposition.x;
         float pad_y = cast(float)padposition.y;
         
-        float ball_x = this.position.x;
-        float ball_y = this.position.y;
+        float ball_x = position.x;
+        float ball_y = position.y;
 
-        if (ball_y + b_radius >= pad_y){
+        if (ball_y + b_width >= pad_y){
             
-            if (ball_x + b_radius > pad_x && ball_x < pad_x + padlen){ // did the ball hit the pad?
+            if (ball_x + b_width > pad_x && ball_x < pad_x + padlen){ // did the ball hit the pad?
                 // where did it hit?
-                this.set_stepx(getReflection(this.get_position.x - padposition.x));
-                this.set_stepy(-this.stepy);
+                stepx = getReflection(position.x - padposition.x);
+                stepy = -stepy;
 
             } else {
                 
@@ -69,30 +53,30 @@ struct Ball {
             }
         }
         
-        if (ball_y < 0) { this.set_stepy(-this.stepy);} // collision check for roof
+        if (ball_y < 0) { stepy = -stepy;} // collision check for roof
         
-        if (ball_x < 0 || ball_x + b_radius >= SCREEN_WIDTH){ this.set_stepx(-this.stepx);} // collision check for sides
+        if (ball_x < 0 || ball_x + b_width >= SCREEN_WIDTH){ stepx = -stepx;} // collision check for sides
         
         if (tiles.length != 0 ) { // collision check for tiles
             // based on: http://rembound.com/articles/the-breakout-tutorial-with-cpp-and-sdl-2
             foreach(ref it; tiles){
-                Point!float tpos = it.get_position();
+                Point!float tpos = it.position;
                 // Brick x and y coordinates
                 float brickx = tpos.x + tileoffsetx;
                 float bricky = tpos.y + tileoffsety;
  
                 // Center of the ball x and y coordinates
-                float ballcenterx = this.get_position.x + 0.5f*b_radius;
-                float ballcentery = this.get_position.y + 0.5f*b_radius;
+                float ballcenterx = position.x + 0.5f*b_width;
+                float ballcentery = position.y + 0.5f*b_width;
  
                 // Center of the brick x and y coordinates
                 float brickcenterx = brickx + 0.5f*tile_w;
                 float brickcentery = bricky + 0.5f*tile_h;
  
-                if (this.get_position.x <= brickx + tile_w &&
-                    this.get_position.x+b_radius >= brickx &&
-                    this.get_position.y <= bricky + tile_h &&
-                    this.get_position.y + b_radius >= bricky) {
+                if (position.x <= brickx + tile_w &&
+                    position.x+b_width >= brickx &&
+                    position.y <= bricky + tile_h &&
+                    position.y + b_width >= bricky) {
                     // Collision detected, remove the brick
                     it.die();
  
@@ -100,34 +84,34 @@ struct Ball {
  
                     // Calculate ysize
                     float ymin = 0;
-                    if (bricky > this.get_position.y) {
+                    if (bricky > position.y) {
                         ymin = bricky;
                     } else {
-                        ymin = this.get_position.y;
+                        ymin = position.y;
                     }
  
                     float ymax = 0;
-                    if (bricky+tile_h < this.get_position.y+b_radius) {
+                    if (bricky + tile_h < position.y + b_width) {
                         ymax = bricky+tile_h;
                     } else {
-                        ymax = this.get_position.y+b_radius;
+                        ymax = position.y + b_width;
                     }
  
                     float ysize = ymax - ymin;
  
                     // Calculate xsize
                     float xmin = 0;
-                    if (brickx > this.get_position.x) {
+                    if (brickx > position.x) {
                         xmin = brickx;
                     } else {
-                        xmin = this.get_position.x;
+                        xmin = position.x;
                     }
  
                     float xmax = 0;
-                    if (brickx+tile_w < this.get_position.x+b_radius) {
+                    if (brickx+tile_w < position.x + b_width) {
                         xmax = brickx+tile_w;
                     } else {
-                        xmax = this.get_position.x+b_radius;
+                        xmax = position.x + b_width;
                     }
  
                     float xsize = xmax - xmin;
@@ -137,21 +121,21 @@ struct Ball {
                     if (xsize > ysize) {
                         if (ballcentery > brickcentery) {
                             // Bottom
-                            this.get_position.y += ysize + 0.01f; // Move out of collision
+                            position.y += ysize + 0.01f; // Move out of collision
                             ballBrickResponse(3);
                         } else {
                             // Top
-                            this.get_position.y -= ysize + 0.01f; // Move out of collision
+                            position.y -= ysize + 0.01f; // Move out of collision
                             ballBrickResponse(1);
                         }
                     } else {
                         if (ballcenterx < brickcenterx) {
                             // Left
-                            this.get_position.x -= xsize + 0.01f; // Move out of collision
+                            position.x -= xsize + 0.01f; // Move out of collision
                             ballBrickResponse(0);
                         } else {
                             // Right
-                            this.get_position.x += xsize + 0.01f; // Move out of collision
+                            position.x += xsize + 0.01f; // Move out of collision
                             ballBrickResponse(2);
                         }
                     }
@@ -159,7 +143,7 @@ struct Ball {
             }
         }
         
-        this.set_position(Point!float(this.stepx*dt*speed + position.x, this.stepy*dt*speed + position.y));
+        position = Point!float(this.stepx*dt*speed + position.x, this.stepy*dt*speed + position.y);
     
     }
     

@@ -89,8 +89,8 @@ void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y) nothrow @n
 void drawTiles(SDL_Texture *texTile, SDL_Renderer *ren) nothrow @nogc{
     
     foreach(tl; tiles){
-        auto x = cast(int)tl.get_position().x;
-        auto y = cast(int)tl.get_position().y;
+        auto x = cast(int)tl.position.x;
+        auto y = cast(int)tl.position.y;
         
         //SDL_RenderCopy(ren, texTile, null, null);
         renderTexture(texTile, ren, x, y, 53, 26);
@@ -249,7 +249,7 @@ void freeALLInstances(T)(T arr) nothrow @nogc{
 void drawUpdateBalls(double dt, SDL_Renderer *ren, SDL_Texture *texBall, ref Paddle paddle) nothrow @nogc {
     for(int i = 0; i < balls.length; i++){
         balls[i].update_ball(paddle.position, padlen, tiles, dt);
-        renderTexture(texBall, ren, cast(int)balls[i].position.x, cast(int)balls[i].position.y, cast(int)b_radius, cast(int)b_radius);
+        renderTexture(texBall, ren, cast(int)balls[i].position.x, cast(int)balls[i].position.y, cast(int)b_width, cast(int)b_width);
     }
 }
 
