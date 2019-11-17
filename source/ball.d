@@ -67,7 +67,7 @@ struct Ball {
             }
         }
         
-        if ((ball_y < 0) && enoughTimePassed()) { stepy = -stepy;} // collision check for roof
+        if ((ball_y < 0 + 5) && enoughTimePassed()) { stepy = -stepy;} // collision check for roof
         
         if ((ball_x < 0 || ball_x + b_width >= SCREEN_WIDTH) && enoughTimePassed()){ stepx = -stepx;} // collision check for sides
         
